@@ -3,7 +3,8 @@ package com.althink.android.ossw.plugins.musicplayer;
 /**
  * Created by krzysiek on 14/06/15.
  */
-public enum PluginFunction {
+public enum MusicPlayerPluginFunction {
+
     PLAY_PAUSE(1, "playPause"),
     PLAY(2, "play"),
     PAUSE(3, "pause"),
@@ -14,7 +15,7 @@ public enum PluginFunction {
     private final int id;
     private final String name;
 
-    private PluginFunction(int id, String name) {
+    private MusicPlayerPluginFunction(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -27,8 +28,8 @@ public enum PluginFunction {
         return name;
     }
 
-    public static PluginFunction resolveById(int functionId) {
-        for (PluginFunction function : PluginFunction.values()) {
+    public static MusicPlayerPluginFunction resolveById(int functionId) {
+        for (MusicPlayerPluginFunction function : MusicPlayerPluginFunction.values()) {
             if (function.getId() == functionId) {
                 return function;
             }

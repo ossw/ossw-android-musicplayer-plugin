@@ -2,6 +2,7 @@ package com.althink.android.ossw.plugins.musicplayer;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,9 +20,9 @@ import android.view.KeyEvent;
 /**
  * Created by krzysiek on 08/06/15.
  */
-public class PluginService extends Service {
+public class MusicPlayerPluginService extends Service {
 
-    private final static String TAG = PluginService.class.getSimpleName();
+    private final static String TAG = MusicPlayerPluginService.class.getSimpleName();
 
     private final Messenger mMessenger = new Messenger(new OperationHandler());
 
@@ -31,25 +32,17 @@ public class PluginService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            String action = intent.getAction();
-            String cmd = intent.getStringExtra("command");
             String artist = intent.getStringExtra(MediaStore.Audio.AudioColumns.ARTIST);
             String album = intent.getStringExtra(MediaStore.Audio.AudioColumns.ALBUM);
             String track = intent.getStringExtra(MediaStore.Audio.AudioColumns.TRACK);
             playing = intent.getBooleanExtra("playing", false);
 
-            Log.d(TAG, artist + ":" + album + ":" + track + ", " + playing);
-
-            getContentResolver().update();
-
-     /*       getContentResolver().query(
-                    UserDictionary.Words.CONTENT_URI,   // The content URI of the words table
-                    mProjection,                        // The columns to return for each row
-                    mSelectionClause                    // Selection criteria
-                    mSelectionArgs,                     // Selection criteria
-                    mSortOrder);                        // The sort order for the returned rows
-*/
+            ContentValues values = new ContentValues();
+            values.put(MusicPlayerPluginProperty.ALBUM.getName(), album);
+            values.put(MusicPlayerPluginProperty.ARTIST.getName(), artist);
+            values.put(MusicPlayerPluginProperty.TRACK.getName(), track);
+            values.put(MusicPlayerPluginProperty.PLAYING.getName(), playing);
+            getContentResolver().update(MusicPlayerPluginContentProvider.PROPERTY_VALUES_URI, values, null, null);
         }
     };
 
@@ -58,7 +51,6 @@ public class PluginService extends Service {
 
         Log.d(TAG, "onBind");
         IntentFilter iF = new IntentFilter();
-
 
         //Google Android player
         iF.addAction("com.android.music.metachanged");
@@ -142,7 +134,7 @@ public class PluginService extends Service {
             int action;
             int code;
 
-            switch (PluginFunction.resolveById(msg.what)) {
+            switch (MusicPlayerPluginFunction.resolveById(msg.what)) {
                 case PLAY_PAUSE:
                     code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
                     Log.i(TAG, "Play/pause: " + playing);

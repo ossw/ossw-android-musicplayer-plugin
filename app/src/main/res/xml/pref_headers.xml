@@ -3,15 +3,15 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.althink.android.ossw.plugins.musicplayer.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.althink.android.ossw.plugins.musicplayer.MusicPlayerPluginSettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="com.althink.android.ossw.plugins.musicplayer.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="com.althink.android.ossw.plugins.musicplayer.MusicPlayerPluginSettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
     <header
-        android:fragment="com.althink.android.ossw.plugins.musicplayer.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="com.althink.android.ossw.plugins.musicplayer.MusicPlayerPluginSettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>

@@ -9,7 +9,7 @@
         android:theme="@style/AppTheme"
         android:process="com.althink.android.ossw">
         <activity
-            android:name=".SettingsActivity"
+            android:name=".MusicPlayerPluginSettingsActivity"
             android:label="@string/plugin_name">
             <intent-filter>
                 <action android:name="com.althink.android.ossw.plugins.musicplayer.Settings" />
@@ -18,7 +18,7 @@
         </activity>
 
         <provider
-            android:name=".PluginContentProvider"
+            android:name=".MusicPlayerPluginContentProvider"
             android:authorities="com.althink.android.ossw.plugins.musicplayer"
             android:exported="true"
             android:syncable="false"
@@ -28,7 +28,7 @@
         </provider>
 
         <service
-            android:name=".PluginService"
+            android:name=".MusicPlayerPluginService"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.althink.android.ossw.plugins.musicplayer" />
