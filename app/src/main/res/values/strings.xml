@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">OSSW music player plugin</string>
+    <string name="plugin_name">Music player</string>
+
+    <string name="property_track">Track name</string>
+    <string name="property_album">Album</string>
+    <string name="property_artist">Artist</string>
+    <string name="property_playing">Is playing</string>
+</resources>
