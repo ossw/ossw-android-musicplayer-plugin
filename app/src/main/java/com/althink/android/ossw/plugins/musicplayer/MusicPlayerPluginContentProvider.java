@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,21 +25,29 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
     static final String API_PROPERTIES_PATH = "api/properties";
     static final String PROVIDER_PROPERTIES = "properties";
 
-    static final int API_PROPERTIES = 1;
-    static final int API_FUNCTIONS = 2;
-    static final int PROPERTIES = 3;
-
     static final Uri PROPERTY_VALUES_URI = Uri.parse("content://" + AUTHORITY + "/" + PROVIDER_PROPERTIES);
 
-    private Map<String, Object> values = new HashMap<>();
+    private static final int API_PROPERTIES = 1;
+    private static final int API_FUNCTIONS = 2;
+    private static final int PROPERTIES = 3;
+
+    private static final String[] PROPERTY_COLUMNS;
 
     private static final UriMatcher uriMatcher;
+
+    private Map<String, Object> values = new HashMap<>();
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(AUTHORITY, API_PROPERTIES_PATH, API_PROPERTIES);
         uriMatcher.addURI(AUTHORITY, API_FUNCTIONS_PATH, API_FUNCTIONS);
         uriMatcher.addURI(AUTHORITY, PROVIDER_PROPERTIES, PROPERTIES);
+
+        LinkedList<String> properties = new LinkedList<>();
+        for (MusicPlayerPluginProperty property : MusicPlayerPluginProperty.values()) {
+            properties.add(property.getName());
+        }
+        PROPERTY_COLUMNS = properties.toArray(new String[properties.size()]);
     }
 
     @Override
@@ -46,34 +56,64 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
         return true;
     }
 
-    static final String PROPERTY_COLUMN_ID = "_id";
-    static final String PROPERTY_COLUMN_NAME = "name";
-    static final String PROPERTY_COLUMN_DESCRIPTION = "description";
+    static final String API_COLUMN_ID = "_id";
+    static final String API_COLUMN_NAME = "name";
+    static final String API_COLUMN_DESCRIPTION = "description";
 
-    private static final String[] PROPERTY_COLUMNS = new String[]{
-            PROPERTY_COLUMN_ID,
-            PROPERTY_COLUMN_NAME,
-            PROPERTY_COLUMN_DESCRIPTION
+    private static final String[] API_PROPERTY_COLUMNS = new String[]{
+            API_COLUMN_ID,
+            API_COLUMN_NAME,
+            API_COLUMN_DESCRIPTION
+    };
+
+    private static final String[] API_FUNCTION_COLUMNS = new String[]{
+            API_COLUMN_ID,
+            API_COLUMN_NAME,
+            API_COLUMN_DESCRIPTION
     };
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         int match = uriMatcher.match(uri);
         switch (match) {
+            case API_PROPERTIES:
+                MatrixCursor cursor = new MatrixCursor(API_PROPERTY_COLUMNS);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.TRACK, R.string.property_track);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.ALBUM, R.string.property_album);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.ARTIST, R.string.property_artist);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.PLAYING, R.string.property_playing);
+                return cursor;
+            case API_FUNCTIONS:
+                cursor = new MatrixCursor(API_FUNCTION_COLUMNS);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.PLAY_PAUSE, R.string.function_play_pause);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.PLAY, R.string.function_play);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.PAUSE, R.string.function_pause);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.STOP, R.string.function_stop);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.NEXT_TRACK, R.string.function_next_track);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.PREV_TRACK, R.string.function_prev_track);
+                return cursor;
             case PROPERTIES:
-                MatrixCursor cursor = new MatrixCursor(PROPERTY_COLUMNS);
-                addPropertyRow(cursor, MusicPlayerPluginProperty.TRACK, getString(R.string.property_track));
-                addPropertyRow(cursor, MusicPlayerPluginProperty.ALBUM, getString(R.string.property_album));
-                addPropertyRow(cursor, MusicPlayerPluginProperty.ARTIST, getString(R.string.property_artist));
-                addPropertyRow(cursor, MusicPlayerPluginProperty.PLAYING, getString(R.string.property_playing));
+                String[] columns = projection != null ? projection : PROPERTY_COLUMNS;
+                cursor = new MatrixCursor(columns);
+                MatrixCursor.RowBuilder rowBuilder = cursor.newRow();
+                for (String property : columns) {
+                    addPropertyColumn(rowBuilder, property, values.get(property));
+                }
                 return cursor;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
     }
+    private void addPropertyColumn(MatrixCursor.RowBuilder rowBuilder, String property, Object value) {
+        rowBuilder.add(value);
+    }
 
-    private void addPropertyRow(MatrixCursor cursor, MusicPlayerPluginProperty property, String description) {
-        cursor.newRow().add(property.getId()).add(property.getName()).add(description);
+    private void addApiPropertyRow(MatrixCursor cursor, MusicPlayerPluginProperty property, int descriptionId) {
+        cursor.newRow().add(property.getId()).add(property.getName()).add(getString(descriptionId));
+    }
+
+    private void addApiFunctionRow(MatrixCursor cursor, MusicPlayerPluginFunction function, int descriptionId) {
+        cursor.newRow().add(function.getId()).add(function.getName()).add(getString(descriptionId));
     }
 
     private String getString(int stringId) {
