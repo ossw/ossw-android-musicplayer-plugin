@@ -5,7 +5,7 @@
     <string name="property_track">Track name</string>
     <string name="property_album">Album</string>
     <string name="property_artist">Artist</string>
-    <string name="property_playing">Is playing</string>
+    <string name="property_playback_state">Playback state</string>
     <string name="function_play_pause">Play/pause</string>
     <string name="function_play">Play</string>
     <string name="function_pause">Pause</string>
