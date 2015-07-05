@@ -8,6 +8,8 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.althink.android.ossw.plugins.api.PluginPropertyType;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -59,14 +61,12 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
     static final String API_COLUMN_NAME = "name";
     static final String API_COLUMN_DESCRIPTION = "description";
     static final String API_COLUMN_TYPE = "type";
-    static final String API_COLUMN_RANGE = "range";
 
     private static final String[] API_PROPERTY_COLUMNS = new String[]{
             API_COLUMN_ID,
             API_COLUMN_NAME,
             API_COLUMN_DESCRIPTION,
-            API_COLUMN_TYPE,
-            API_COLUMN_RANGE
+            API_COLUMN_TYPE
     };
 
     private static final String[] API_FUNCTION_COLUMNS = new String[]{
@@ -81,10 +81,10 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
         switch (match) {
             case API_PROPERTIES:
                 MatrixCursor cursor = new MatrixCursor(API_PROPERTY_COLUMNS);
-                addApiPropertyRow(cursor, MusicPlayerPluginProperty.TRACK, R.string.property_track, "STRING");
-                addApiPropertyRow(cursor, MusicPlayerPluginProperty.ALBUM, R.string.property_album, "STRING");
-                addApiPropertyRow(cursor, MusicPlayerPluginProperty.ARTIST, R.string.property_artist, "STRING");
-                addApiPropertyRow(cursor, MusicPlayerPluginProperty.PLAYING, R.string.property_playback_state, "ENUM");
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.TRACK, R.string.property_track);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.ALBUM, R.string.property_album);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.ARTIST, R.string.property_artist);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.STATE, R.string.property_playback_state);
                 return cursor;
             case API_FUNCTIONS:
                 cursor = new MatrixCursor(API_FUNCTION_COLUMNS);
@@ -111,12 +111,8 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
         rowBuilder.add(value);
     }
 
-    private void addApiPropertyRow(MatrixCursor cursor, MusicPlayerPluginProperty property, int descriptionId, String type, Integer range) {
-        cursor.newRow().add(property.getId()).add(property.getName()).add(getString(descriptionId)).add(type).add(range);
-    }
-
-    private void addApiPropertyRow(MatrixCursor cursor, MusicPlayerPluginProperty property, int descriptionId, String type) {
-        addApiPropertyRow(cursor, property, descriptionId, type, null);
+    private void addApiPropertyRow(MatrixCursor cursor, MusicPlayerPluginProperty property, int descriptionId) {
+        cursor.newRow().add(property.getId()).add(property.getName()).add(getString(descriptionId)).add(property.getType().name());
     }
 
     private void addApiFunctionRow(MatrixCursor cursor, MusicPlayerPluginFunction function, int descriptionId) {

@@ -41,7 +41,7 @@ public class MusicPlayerPluginService extends Service {
             values.put(MusicPlayerPluginProperty.ALBUM.getName(), album);
             values.put(MusicPlayerPluginProperty.ARTIST.getName(), artist);
             values.put(MusicPlayerPluginProperty.TRACK.getName(), track);
-            values.put(MusicPlayerPluginProperty.PLAYING.getName(), playing);
+            values.put(MusicPlayerPluginProperty.STATE.getName(), playing ? 1 : 0);
             getContentResolver().update(MusicPlayerPluginContentProvider.PROPERTY_VALUES_URI, values, null, null);
         }
     };
