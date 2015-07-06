@@ -49,7 +49,7 @@ public class MusicPlayerPluginService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
 
-        Log.d(TAG, "onBind");
+        //Log.d(TAG, "onBind");
         IntentFilter iF = new IntentFilter();
 
         //Google Android player
@@ -117,7 +117,7 @@ public class MusicPlayerPluginService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(TAG, "onUnbind");
+        //Log.d(TAG, "onUnbind");
         unregisterReceiver(mReceiver);
         return super.onUnbind(intent);
     }
@@ -137,36 +137,36 @@ public class MusicPlayerPluginService extends Service {
             switch (MusicPlayerPluginFunction.resolveById(msg.what)) {
                 case PLAY_PAUSE:
                     code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                    Log.i(TAG, "Play/pause: " + playing);
+                    //Log.i(TAG, "Play/pause: " + playing);
                     break;
                 case NEXT_TRACK:
                     code = KeyEvent.KEYCODE_MEDIA_NEXT;
-                    Log.i(TAG, "Next track");
+                    //Log.i(TAG, "Next track");
                     break;
                 case PREV_TRACK:
                     code = KeyEvent.KEYCODE_MEDIA_PREVIOUS;
-                    Log.i(TAG, "Previous track");
+                    //Log.i(TAG, "Previous track");
                     break;
                 case PLAY:
                     if (playing) {
                         return;
                     }
                     code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                    Log.i(TAG, "Play");
+                    //Log.i(TAG, "Play");
                     break;
                 case PAUSE:
                     if (!playing) {
                         return;
                     }
                     code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                    Log.i(TAG, "Pause");
+                    //Log.i(TAG, "Pause");
                     break;
                 case STOP:
                     if (!playing) {
                         return;
                     }
                     code = KeyEvent.KEYCODE_MEDIA_STOP;
-                    Log.i(TAG, "Stop");
+                    //Log.i(TAG, "Stop");
                     break;
                 default:
                     // do nothing

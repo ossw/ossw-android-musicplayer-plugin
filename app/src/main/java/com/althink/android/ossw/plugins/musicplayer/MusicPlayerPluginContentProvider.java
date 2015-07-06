@@ -53,7 +53,7 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.i(TAG, "Process: " + android.os.Process.myUid());
+        //Log.i(TAG, "Process: " + android.os.Process.myUid());
         return true;
     }
 
@@ -159,7 +159,7 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
                         Object newValue = values.get(key);
                         Object oldValue = this.values.get(key);
                         if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
-                            Log.i(TAG, "Update property '" + key + "' with value: " + newValue);
+                            //Log.i(TAG, "Update property '" + key + "' with value: " + newValue);
                             this.values.put(key, values.get(key));
                             hasChanged = true;
                         }
