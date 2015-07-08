@@ -32,16 +32,22 @@ public class MusicPlayerPluginService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            //Log.i(TAG, "Intent: " + intent + ", " + intent.getExtras());
             String artist = intent.getStringExtra(MediaStore.Audio.AudioColumns.ARTIST);
             String album = intent.getStringExtra(MediaStore.Audio.AudioColumns.ALBUM);
             String track = intent.getStringExtra(MediaStore.Audio.AudioColumns.TRACK);
             playing = intent.getBooleanExtra("playing", false);
 
+            //Log.i(TAG, "artist: " + artist + " , track: " + track + ", album: " + album + ", playing: " + playing);
+
             ContentValues values = new ContentValues();
-            values.put(MusicPlayerPluginProperty.ALBUM.getName(), album);
-            values.put(MusicPlayerPluginProperty.ARTIST.getName(), artist);
-            values.put(MusicPlayerPluginProperty.TRACK.getName(), track);
+            if (album != null || track != null || artist != null) {
+                values.put(MusicPlayerPluginProperty.ALBUM.getName(), album);
+                values.put(MusicPlayerPluginProperty.ARTIST.getName(), artist);
+                values.put(MusicPlayerPluginProperty.TRACK.getName(), track);
+            }
             values.put(MusicPlayerPluginProperty.STATE.getName(), playing ? 1 : 0);
+
             getContentResolver().update(MusicPlayerPluginContentProvider.PROPERTY_VALUES_URI, values, null, null);
         }
     };
@@ -110,6 +116,9 @@ public class MusicPlayerPluginService extends Service {
         iF.addAction("com.adam.aslfms.notify.playstatechanged");
         //Scrobble Droid
         iF.addAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+        //Spotify
+        iF.addAction("com.spotify.music.metadatachanged");
+        iF.addAction("com.spotify.music.playbackstatechanged");
 
         registerReceiver(mReceiver, iF);
         return mMessenger.getBinder();

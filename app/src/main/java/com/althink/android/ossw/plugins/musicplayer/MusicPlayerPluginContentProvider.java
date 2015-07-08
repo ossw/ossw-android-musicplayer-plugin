@@ -84,7 +84,7 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
                 addApiPropertyRow(cursor, MusicPlayerPluginProperty.TRACK, R.string.property_track);
                 addApiPropertyRow(cursor, MusicPlayerPluginProperty.ALBUM, R.string.property_album);
                 addApiPropertyRow(cursor, MusicPlayerPluginProperty.ARTIST, R.string.property_artist);
-                addApiPropertyRow(cursor, MusicPlayerPluginProperty.STATE, R.string.property_playback_state);
+                //addApiPropertyRow(cursor, MusicPlayerPluginProperty.STATE, R.string.property_playback_state);
                 return cursor;
             case API_FUNCTIONS:
                 cursor = new MatrixCursor(API_FUNCTION_COLUMNS);
