@@ -6,10 +6,15 @@
     <string name="property_album">Album</string>
     <string name="property_artist">Artist</string>
     <string name="property_playback_state">Playback state</string>
+    <string name="property_volume">Volume</string>
     <string name="function_play_pause">Play/pause</string>
     <string name="function_play">Play</string>
     <string name="function_pause">Pause</string>
     <string name="function_stop">Stop</string>
     <string name="function_next_track">Next track</string>
     <string name="function_prev_track">Previous track</string>
+    <string name="function_volume_up">Turn volume up</string>
+    <string name="function_volume_down">Turn volume down</string>
+    <string name="function_volume_max">Set maximum volume</string>
+    <string name="function_volume_min">Set minimum volume</string>
 </resources>

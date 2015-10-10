@@ -10,7 +10,11 @@ public enum MusicPlayerPluginFunction {
     PAUSE(3, "pause"),
     STOP(4, "stop"),
     NEXT_TRACK(5, "nextTrack"),
-    PREV_TRACK(6, "prevTrack");
+    PREV_TRACK(6, "prevTrack"),
+    VOLUME_UP(7, "volumeUp"),
+    VOLUME_DOWN(8, "volumeDown"),
+    VOLUME_MAX(9, "volumeMax"),
+    VOLUME_MIN(10, "volumeMin");
 
     private final int id;
     private final String name;

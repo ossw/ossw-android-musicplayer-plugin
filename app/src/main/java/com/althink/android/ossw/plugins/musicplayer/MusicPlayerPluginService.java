@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
@@ -27,6 +28,10 @@ public class MusicPlayerPluginService extends Service {
     private final Messenger mMessenger = new Messenger(new OperationHandler());
 
     private boolean playing = false;
+
+    private int previousVolume;
+
+    private SettingsContentObserver settingsContentObserver;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -120,6 +125,13 @@ public class MusicPlayerPluginService extends Service {
         iF.addAction("com.spotify.music.metadatachanged");
         iF.addAction("com.spotify.music.playbackstatechanged");
 
+        previousVolume = -1;
+
+        settingsContentObserver = new SettingsContentObserver(new Handler());
+        getApplicationContext().getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, settingsContentObserver);
+
+        handleVolumeChange();
+
         registerReceiver(mReceiver, iF);
         return mMessenger.getBinder();
     }
@@ -127,6 +139,8 @@ public class MusicPlayerPluginService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         //Log.d(TAG, "onUnbind");
+        getApplicationContext().getContentResolver().unregisterContentObserver(settingsContentObserver);
+
         unregisterReceiver(mReceiver);
         return super.onUnbind(intent);
     }
@@ -140,60 +154,119 @@ public class MusicPlayerPluginService extends Service {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            int action;
-            int code;
+            int keyCode = 0;
 
             switch (MusicPlayerPluginFunction.resolveById(msg.what)) {
                 case PLAY_PAUSE:
-                    code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                    //Log.i(TAG, "Play/pause: " + playing);
+                    keyCode = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
                     break;
                 case NEXT_TRACK:
-                    code = KeyEvent.KEYCODE_MEDIA_NEXT;
-                    //Log.i(TAG, "Next track");
+                    keyCode = KeyEvent.KEYCODE_MEDIA_NEXT;
                     break;
                 case PREV_TRACK:
-                    code = KeyEvent.KEYCODE_MEDIA_PREVIOUS;
-                    //Log.i(TAG, "Previous track");
+                    keyCode = KeyEvent.KEYCODE_MEDIA_PREVIOUS;
                     break;
                 case PLAY:
                     if (playing) {
                         return;
                     }
-                    code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                    //Log.i(TAG, "Play");
+                    keyCode = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
                     break;
                 case PAUSE:
                     if (!playing) {
                         return;
                     }
-                    code = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                    //Log.i(TAG, "Pause");
+                    keyCode = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
                     break;
                 case STOP:
                     if (!playing) {
                         return;
                     }
-                    code = KeyEvent.KEYCODE_MEDIA_STOP;
-                    //Log.i(TAG, "Stop");
+                    keyCode = KeyEvent.KEYCODE_MEDIA_STOP;
                     break;
+                case VOLUME_UP: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                            AudioManager.ADJUST_RAISE, 0);
+                    handleVolumeChange();
+                }
+                break;
+                case VOLUME_DOWN: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                            AudioManager.ADJUST_LOWER, 0);
+                    handleVolumeChange();
+                    break;
+                }
+                case VOLUME_MAX: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+                    handleVolumeChange();
+                }
+                break;
+                case VOLUME_MIN: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+                    handleVolumeChange();
+                    break;
+                }
                 default:
                     // do nothing
                     return;
             }
 
-            long eventTime = SystemClock.uptimeMillis();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                am.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, code, 0));
-                am.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, code, 0));
-            } else {
-                Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
-                intent.putExtra(Intent.EXTRA_KEY_EVENT, KeyEvent.ACTION_DOWN);
-                sendOrderedBroadcast(intent, null);
-                intent.putExtra(Intent.EXTRA_KEY_EVENT, KeyEvent.ACTION_UP);
-                sendOrderedBroadcast(intent, null);
+
+            if (keyCode != 0) {
+                long eventTime = SystemClock.uptimeMillis();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    am.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0));
+                    am.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0));
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+                    intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode,
+                            0));
+                    sendOrderedBroadcast(intent, null);
+                    intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode,
+                            0));
+                    sendOrderedBroadcast(intent, null);
+                }
             }
         }
     }
+
+    private void handleVolumeChange() {
+
+        AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        int delta = previousVolume - currentVolume;
+
+        if (delta != 0) {
+            ContentValues values = new ContentValues();
+            values.put(MusicPlayerPluginProperty.VOLUME.getName(), 100 * currentVolume / audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+            getContentResolver().update(MusicPlayerPluginContentProvider.PROPERTY_VALUES_URI, values, null, null);
+            previousVolume = currentVolume;
+        }
+    }
+
+    private class SettingsContentObserver extends ContentObserver {
+
+        public SettingsContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return super.deliverSelfNotifications();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            handleVolumeChange();
+        }
+    }
 }
+
