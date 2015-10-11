@@ -29,6 +29,8 @@ public class MusicPlayerPluginService extends Service {
 
     private boolean playing = false;
 
+    private boolean muted = false;
+
     private int previousVolume;
 
     private SettingsContentObserver settingsContentObserver;
@@ -130,7 +132,7 @@ public class MusicPlayerPluginService extends Service {
         settingsContentObserver = new SettingsContentObserver(new Handler());
         getApplicationContext().getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, settingsContentObserver);
 
-        handleVolumeChange();
+        handleMuteChange();
 
         registerReceiver(mReceiver, iF);
         return mMessenger.getBinder();
@@ -140,6 +142,11 @@ public class MusicPlayerPluginService extends Service {
     public boolean onUnbind(Intent intent) {
         //Log.d(TAG, "onUnbind");
         getApplicationContext().getContentResolver().unregisterContentObserver(settingsContentObserver);
+
+        if (muted) {
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+        }
 
         unregisterReceiver(mReceiver);
         return super.onUnbind(intent);
@@ -196,8 +203,8 @@ public class MusicPlayerPluginService extends Service {
                     audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
                             AudioManager.ADJUST_LOWER, 0);
                     handleVolumeChange();
-                    break;
                 }
+                break;
                 case VOLUME_MAX: {
                     AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
@@ -208,8 +215,33 @@ public class MusicPlayerPluginService extends Service {
                     AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     handleVolumeChange();
-                    break;
                 }
+                break;
+                case MUTE: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    if (!muted) {
+                        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                        muted = true;
+                        handleMuteChange();
+                    }
+                }
+                break;
+                case UNMUTE: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    if (muted) {
+                        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+                        muted = false;
+                        handleMuteChange();
+                    }
+                }
+                break;
+                case TOGGLE_MUTE: {
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    muted = !muted;
+                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, muted);
+                    handleMuteChange();
+                }
+                break;
                 default:
                     // do nothing
                     return;
@@ -235,8 +267,14 @@ public class MusicPlayerPluginService extends Service {
         }
     }
 
-    private void handleVolumeChange() {
+    private void handleMuteChange() {
+        ContentValues values = new ContentValues();
+        values.put(MusicPlayerPluginProperty.MUTED.getName(), muted ? 1 : 0);
+        getContentResolver().update(MusicPlayerPluginContentProvider.PROPERTY_VALUES_URI, values, null, null);
+        handleVolumeChange();
+    }
 
+    private void handleVolumeChange() {
         AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
 

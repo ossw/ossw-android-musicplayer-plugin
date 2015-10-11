@@ -7,6 +7,7 @@
     <string name="property_artist">Artist</string>
     <string name="property_playback_state">Playback state</string>
     <string name="property_volume">Volume</string>
+    <string name="property_muted">Muted</string>
     <string name="function_play_pause">Play/pause</string>
     <string name="function_play">Play</string>
     <string name="function_pause">Pause</string>
@@ -17,4 +18,7 @@
     <string name="function_volume_down">Turn volume down</string>
     <string name="function_volume_max">Set maximum volume</string>
     <string name="function_volume_min">Set minimum volume</string>
+    <string name="function_mute">Mute</string>
+    <string name="function_unmute">Unmute</string>
+    <string name="function_toggle_mute">Toggle mute</string>
 </resources>

@@ -14,7 +14,10 @@ public enum MusicPlayerPluginFunction {
     VOLUME_UP(7, "volumeUp"),
     VOLUME_DOWN(8, "volumeDown"),
     VOLUME_MAX(9, "volumeMax"),
-    VOLUME_MIN(10, "volumeMin");
+    VOLUME_MIN(10, "volumeMin"),
+    MUTE(11, "mute"),
+    UNMUTE(12, "unmute"),
+    TOGGLE_MUTE(13, "toggleMute");
 
     private final int id;
     private final String name;

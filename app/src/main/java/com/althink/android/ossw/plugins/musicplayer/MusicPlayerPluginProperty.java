@@ -10,7 +10,8 @@ public enum MusicPlayerPluginProperty {
     ALBUM(2, "album", PluginPropertyType.STRING),
     ARTIST(3, "artist", PluginPropertyType.STRING),
     STATE(4, "state", PluginPropertyType.ENUM),
-    VOLUME(5, "volume", PluginPropertyType.INTEGER);
+    VOLUME(5, "volume", PluginPropertyType.INTEGER),
+    MUTED(6, "muted", PluginPropertyType.ENUM);
 
     private int id;
     private String name;

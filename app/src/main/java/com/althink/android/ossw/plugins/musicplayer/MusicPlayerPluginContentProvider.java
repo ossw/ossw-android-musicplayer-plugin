@@ -86,6 +86,7 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
                 addApiPropertyRow(cursor, MusicPlayerPluginProperty.ARTIST, R.string.property_artist);
                 addApiPropertyRow(cursor, MusicPlayerPluginProperty.STATE, R.string.property_playback_state);
                 addApiPropertyRow(cursor, MusicPlayerPluginProperty.VOLUME, R.string.property_volume);
+                addApiPropertyRow(cursor, MusicPlayerPluginProperty.MUTED, R.string.property_muted);
                 return cursor;
             case API_FUNCTIONS:
                 cursor = new MatrixCursor(API_FUNCTION_COLUMNS);
@@ -99,6 +100,9 @@ public class MusicPlayerPluginContentProvider extends ContentProvider {
                 addApiFunctionRow(cursor, MusicPlayerPluginFunction.VOLUME_DOWN, R.string.function_volume_down);
                 addApiFunctionRow(cursor, MusicPlayerPluginFunction.VOLUME_MAX, R.string.function_volume_max);
                 addApiFunctionRow(cursor, MusicPlayerPluginFunction.VOLUME_MIN, R.string.function_volume_min);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.MUTE, R.string.function_mute);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.UNMUTE, R.string.function_unmute);
+                addApiFunctionRow(cursor, MusicPlayerPluginFunction.TOGGLE_MUTE, R.string.function_toggle_mute);
                 return cursor;
             case PROPERTIES:
                 String[] columns = projection != null ? projection : PROPERTY_COLUMNS;
